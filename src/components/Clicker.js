@@ -8,12 +8,11 @@ import {
 } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useEffect, useState } from 'react'
-import { collection, getDocs, runTransaction, doc } from 'firebase/firestore'
+import { runTransaction, doc, onSnapshot } from 'firebase/firestore'
 import db from '../config/db'
 
 export default function Clicker() {
   const [value, setValue] = useState(0)
-  const clicksCollectionRef = collection(db, 'clicks')
   const amountDocRef = doc(db, 'clicks', 'fuUwVrgOf8uptXfli84F')
 
   const onClick = async (value) => {
@@ -37,11 +36,12 @@ export default function Clicker() {
 
   useEffect(() => {
     const getAmount = async () => {
-      const data = await getDocs(clicksCollectionRef)
-      setValue(data.docs.find((doc, id) => id === 0).data().amount)
+      onSnapshot(amountDocRef, (snapshot) => {
+        setValue(snapshot.data().amount)
+      })
     }
     getAmount()
-  }, [])
+  }, [amountDocRef])
 
   return (
     <Box
